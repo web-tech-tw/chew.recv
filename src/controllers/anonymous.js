@@ -37,6 +37,7 @@ module.exports = (ctx, r) => {
         async (req, res) => {
             const Chew = ctx.database.model("Chew", schema.chew);
             const chew = new Chew(req.body);
+            chew.author = null;
             chew.created_at = ctx.now();
             chew.updated_at = ctx.now();
             await chew.save();

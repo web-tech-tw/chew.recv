@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 
 module.exports = new Schema({
     content: String,
+    author: String,
     created_at: Number,
     updated_at: Number,
 });
