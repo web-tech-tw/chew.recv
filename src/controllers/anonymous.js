@@ -5,7 +5,7 @@ const {Router: expressRouter} = require("express");
 
 // Import modules
 const schema = {
-    chew: require("../schemas/chew"),
+    gum: require("../schemas/gum"),
 };
 const middleware = {
     inspector: require("../middleware/inspector"),
@@ -21,13 +21,13 @@ module.exports = (ctx, r) => {
         middleware.inspector,
         async (req, res) => {
             const code = req.params.code;
-            const Chew = ctx.database.model("Chew", schema.chew);
-            const chew = await Chew.findById(code).exec();
-            if (!chew) {
+            const Gum = ctx.database.model("Gum", schema.gum);
+            const gum = await Gum.findById(code).exec();
+            if (!gum) {
                 res.sendStatus(StatusCodes.NOT_FOUND);
                 return;
             }
-            res.send(chew);
+            res.send(gum);
         },
     );
 
@@ -35,13 +35,13 @@ module.exports = (ctx, r) => {
         middleware.validator.body("content").notEmpty(),
         middleware.inspector,
         async (req, res) => {
-            const Chew = ctx.database.model("Chew", schema.chew);
-            const chew = new Chew(req.body);
-            chew.author = null;
-            chew.created_at = ctx.now();
-            chew.updated_at = ctx.now();
-            await chew.save();
-            res.send(chew);
+            const Gum = ctx.database.model("Gum", schema.gum);
+            const gum = new Gum(req.body);
+            gum.author = null;
+            gum.created_at = ctx.now();
+            gum.updated_at = ctx.now();
+            await gum.save();
+            res.send(gum);
         },
     );
 
