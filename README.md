@@ -1,6 +1,6 @@
-# template.recv
+# chew.recv
 
-後端 API 通用模板
+文字片段分享平台
 
 ## Development
 

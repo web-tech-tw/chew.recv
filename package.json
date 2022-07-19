@@ -1,5 +1,5 @@
 {
-  "name": "template.recv",
+  "name": "chew.recv",
   "version": "1.0.0",
   "description": "Node.js on Docker",
   "author": "Taiwan Web Technology Promotion Organization",
@@ -29,6 +29,6 @@
   "devDependencies": {
     "eslint": "^8.17.0",
     "eslint-config-google": "^0.14.0",
-    "nodemon": "^2.0.13"
+    "nodemon": "^2.0.19"
   }
 }

@@ -3,6 +3,6 @@
 
 // Export (object)
 module.exports = {
-    APP_NAME: "template.recv",
+    APP_NAME: "chew.recv",
     SECRET_FILENAME: "secret.key",
 };
