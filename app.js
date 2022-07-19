@@ -14,15 +14,6 @@ const ctx = {
     database: require("./src/init/database"),
     jwt_secret: require("./src/init/jwt_secret"),
 };
-const util = {
-    sara_token: require("./src/utils/sara_token"),
-    ip_address: require("./src/utils/ip_address"),
-};
-const middleware = {
-    access: require("./src/middlewares/access"),
-    inspector: require("./src/middlewares/inspector"),
-    validator: require("express-validator"),
-};
 
 // Initialize application
 const app = require("./src/init/express")(ctx);
@@ -38,32 +29,8 @@ app.get(
     (_, res) => res.type("txt").send("User-agent: *\nDisallow: /"),
 );
 
-// Example to show time with ctx.now
-app.get("/example-now", (req, res) => {
-    res.send({timestamp: ctx.now()});
-});
-
-// Example to show the visitor's IP with util.ip_address
-app.get("/example-ip", (req, res) => {
-    res.send({ip_address: util.ip_address(req)});
-});
-
-// Example to check fields with middleware.validator
-app.get("/example-empty",
-    middleware.validator.query("empty").isEmpty(),
-    middleware.inspector, (_, res) => {
-        res.send(
-            "200 Success<br />" +
-            "(Field \"empty\" in query should be empty, " +
-            "or it will send error \"400 Bad Request\".)",
-        );
-    },
-);
-
-// Example to check admin role with middleware.access
-app.get("/example-admin", middleware.access("root"), (_, res) => {
-    res.send("Hello, Admin!");
-});
+// Map routes
+require("./src/controllers")(ctx, app);
 
 // Show status message
 (() => {
