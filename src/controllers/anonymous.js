@@ -41,7 +41,7 @@ module.exports = (ctx, r) => {
             gum.created_at = ctx.now();
             gum.updated_at = ctx.now();
             await gum.save();
-            res.send(gum);
+            res.status(StatusCodes.CREATED).send(gum);
         },
     );
 
