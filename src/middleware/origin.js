@@ -3,28 +3,70 @@
 // if not, interrupt it.
 
 // Import config
-const {isProduction, getMust} = require("../config");
+const {isProduction, getMust, getEnabled} = require("../config");
 
 // Import StatusCodes
 const {StatusCodes} = require("http-status-codes");
 
+// Import isObjectPropExists
+const {isObjectPropExists} = require("../utils/native");
+
 // Export (function)
 module.exports = (req, res, next) => {
-    const actualUrl = req.header("Origin");
+    // Check the request is CORS
+    if (!isObjectPropExists(req.headers, "origin")) {
+        if (!isProduction()) {
+            // Debug message
+            console.warn("CORS origin header is not detected");
+        }
+        next();
+        return;
+    }
+
+    // Get URLs
+    const actualUrl = req.header("origin");
     const expectedUrl = getMust("CORS_ORIGIN");
-    if (actualUrl !== expectedUrl) {
+
+    // Origin match
+    if (actualUrl === expectedUrl) {
         if (!isProduction()) {
             // Debug message
             console.warn(
-                "CORS origin header mismatch:",
+                "CORS origin header match:",
                 `actual "${actualUrl}"`,
                 `expected "${expectedUrl}"`,
             );
         }
-        res.sendStatus(StatusCodes.FORBIDDEN);
+        next();
         return;
     }
 
-    // Call next middleware
-    next();
+    // Get URLs
+    const isEnabledSwagger = getEnabled("ENABLED_SWAGGER");
+    const expectedSwaggerUrl = getMust("SWAGGER_CORS_ORIGIN");
+
+    // Origin from Swagger match
+    if (isEnabledSwagger && actualUrl === expectedSwaggerUrl) {
+        if (!isProduction()) {
+            // Debug message
+            console.warn(
+                "CORS origin header from Swagger match:",
+                `actual "${actualUrl}"`,
+                `expected "${expectedUrl}"`,
+            );
+        }
+        next();
+        return;
+    }
+
+    // Origin mismatch
+    if (!isProduction()) {
+        // Debug message
+        console.warn(
+            "CORS origin header mismatch:",
+            `actual "${actualUrl}"`,
+            `expected "${expectedUrl}"`,
+        );
+    }
+    res.sendStatus(StatusCodes.FORBIDDEN);
 };
