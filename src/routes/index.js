@@ -2,7 +2,7 @@
 
 // Routers
 exports.routerFiles = [
-    "./anonymous.js",
+    "./gum.js",
     "./swagger.js",
 ];
 

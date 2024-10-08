@@ -21,12 +21,12 @@ router.use(express.json());
 router.get("/:code",
     middlewareValidator.param("code").isMongoId().notEmpty(),
     middlewareInspector,
-    middlewareRestrictor(10, 60, false),
+    middlewareRestrictor(10, 60, true),
     async (req, res) => {
         const code = req.params.code;
         const gum = await Gum.findById(code).exec();
         if (!gum) {
-            res.sendStatus(StatusCodes.NOT_FOUND);
+            res.sendStatus(StatusCodes.UNAUTHORIZED);
             return;
         }
         res.send(gum);
