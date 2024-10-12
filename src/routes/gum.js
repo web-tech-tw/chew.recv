@@ -34,16 +34,27 @@ router.get("/:code",
 );
 
 router.post("/",
+    middlewareValidator.body("type").isIn([
+        "plain", "js",
+    ]),
     middlewareValidator.body("content").notEmpty(),
     middlewareInspector,
     async (req, res) => {
-        const gum = new Gum();
-        gum.content = req.body.content;
-        gum.author = null;
-        gum.created_at = utilNative.getPosixTimestamp();
-        gum.updated_at = utilNative.getPosixTimestamp();
-        await gum.save();
-        res.status(StatusCodes.CREATED).send(gum);
+        const timestamp = utilNative.getPosixTimestamp();
+        const gum = new Gum({
+            type: req.body.type,
+            content: req.body.content,
+            author: req.auth.id || null,
+            created_at: timestamp,
+            updated_at: timestamp,
+        });
+        try {
+            await gum.save();
+            res.status(StatusCodes.CREATED).send(gum);
+        } catch (e) {
+            console.error(e);
+            res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+        }
     },
 );
 
