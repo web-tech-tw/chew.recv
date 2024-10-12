@@ -44,7 +44,7 @@ router.post("/",
         const gum = new Gum({
             type: req.body.type,
             content: req.body.content,
-            author: req.auth.id || null,
+            author: req?.auth.id || null,
             created_at: timestamp,
             updated_at: timestamp,
         });
