@@ -2,11 +2,9 @@
 
 // Import modules
 const {StatusCodes} = require("http-status-codes");
-const {useApp, express} = require("../init/express");
+const {useApp, withAwait, express} = require("../init/express");
 
 const Gum = require("../models/gum");
-
-const utilNative = require("../utils/native");
 
 const middlewareInspector = require("../middleware/inspector");
 const middlewareValidator = require("express-validator");
@@ -21,16 +19,23 @@ router.use(express.json());
 router.get("/:code",
     middlewareValidator.param("code").isMongoId().notEmpty(),
     middlewareInspector,
-    middlewareRestrictor(10, 60, true),
-    async (req, res) => {
-        const code = req.params.code;
+    middlewareRestrictor(10, 60, true, StatusCodes.NOT_FOUND),
+    withAwait(async (req, res) => {
+        // Extract code
+        const {code} = req.params;
+
+        // Find gum
         const gum = await Gum.findById(code).exec();
+
+        // Check if gum not found
         if (!gum) {
-            res.sendStatus(StatusCodes.UNAUTHORIZED);
+            res.sendStatus(StatusCodes.NOT_FOUND);
             return;
         }
+
+        // Send Response
         res.send(gum);
-    },
+    }),
 );
 
 router.post("/",
@@ -39,23 +44,24 @@ router.post("/",
     ]),
     middlewareValidator.body("content").notEmpty(),
     middlewareInspector,
-    async (req, res) => {
-        const timestamp = utilNative.getPosixTimestamp();
+    withAwait(async (req, res) => {
+        // Extract params
+        const {type, content} = req.body;
+        const author = req.auth?.id || null;
+
+        // Prepare gum
         const gum = new Gum({
-            type: req.body.type,
-            content: req.body.content,
-            author: req.auth?.id || null,
-            created_at: timestamp,
-            updated_at: timestamp,
+            type, content, author,
         });
-        try {
-            await gum.save();
-            res.status(StatusCodes.CREATED).send(gum);
-        } catch (e) {
-            console.error(e);
-            res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-    },
+
+        // Save gum
+        await gum.save();
+
+        // Send Response
+        res.
+            status(StatusCodes.CREATED).
+            send(gum);
+    }),
 );
 
 // Export routes mapper (function)
@@ -64,5 +70,5 @@ module.exports = () => {
     const app = useApp();
 
     // Mount the router
-    app.use("/gum", router);
+    app.use("/gums", router);
 };
