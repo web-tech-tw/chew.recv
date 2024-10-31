@@ -12,7 +12,7 @@ env:
 jobs:
   build-and-push-image:
     name: Build and publish a Docker image
-    runs-on: performance
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
